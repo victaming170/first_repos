@@ -10,7 +10,7 @@ def file_cmp_text(file0_, file1_):
         f1 = open(file1_, 'r', encoding='utf-8')
     except FileNotFoundError:
         f1 = open(file1_, 'w')
-        print('[Creat]', end='')
+        print('[Create]', end='')
         f1 = open(file1_, 'r', encoding='utf-8')
     #  compare
     while True:
@@ -41,7 +41,7 @@ def copy_file_text(file_src_, file_dst_):
     f_dst.close()
 
 
-# strip filename from path
+# strip filename from path(py style)
 def get_filename_from_path(path_):
     try:
         x_index = path_.rfind('/')
@@ -63,11 +63,11 @@ def option_button(layer_, default_, *options_):
         default_ = int(default_)
     except ValueError:
         default_ = 0
-        print('x(Invalid default option, reset to 0.)x')
+        print('[ERROR-options_button]Invalid default option, reset to 0.')
     else:
         if default_ >= options_n:
             default_ = 0
-            print('x(Invalid default option, reset to 0.)x')
+            print('[ERROR-options_button]Invalid default option, reset to 0.')
     # show options
     for n in range(options_n):
         if n != default_:
@@ -82,5 +82,5 @@ def option_button(layer_, default_, *options_):
         elif button in [str(n) for n in range(options_n)]:
             break
         else:
-            print('x(Invalid option, try again pls.)x')
+            print('Invalid option, try again pls.')
     return int(button)
