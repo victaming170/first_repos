@@ -1,6 +1,6 @@
 
 # compare 2 files
-def file_cmp_text(file0_, file1_):
+def text_cmp(file0_, file1_):
     try:
         f0 = open(file0_, 'r', encoding='utf-8')
     except FileNotFoundError:
@@ -28,7 +28,7 @@ def file_cmp_text(file0_, file1_):
             return False
 
 # copy text file from file0 to file1
-def copy_file_text(file_src_, file_dst_):
+def text_copy(file_src_, file_dst_):
     f_src = open(file_src_, 'r', encoding='utf-8')
     f_dst = open(file_dst_, 'w', encoding='utf-8')
     while True:
@@ -53,10 +53,10 @@ def get_filename_from_path(path_):
         return path_[x_index+1:]
 
 
-# show all options, get the choice of user. layer_=[str], default_=[int], options_=n*[str]
-def option_button(layer_, default_, *options_):
-    # show the option layer
-    print(f'Option_{layer_}:')
+# show all options, get the choice of user. descrip_=[str], default_=[int], options_=n*[str]
+def option_button(descrip_, default_, *options_):
+    # show the option description
+    print(descrip_)
     options_n = len(options_)
     # get default choice
     try:
