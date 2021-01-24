@@ -53,7 +53,7 @@ def get_filename_from_path(path_):
         return path_[x_index+1:]
 
 
-# show user options, get the choice of user
+# show all options, get the choice of user. layer_=[str], default_=[int], options_=n*[str]
 def option_button(layer_, default_, *options_):
     # show the option layer
     print(f'Option_{layer_}:')
@@ -63,17 +63,18 @@ def option_button(layer_, default_, *options_):
         default_ = int(default_)
     except ValueError:
         default_ = 0
-        print('[ERROR-options_button]Invalid default option, reset to 0.')
+        print('[ERROR-option_button]Invalid default option, reset to 0.')
     else:
         if default_ >= options_n:
             default_ = 0
-            print('[ERROR-options_button]Invalid default option, reset to 0.')
+            print('[ERROR-option_button]Invalid default option, reset to 0.')
     # show options
     for n in range(options_n):
         if n != default_:
             print(f'({n}) {options_[n]}')
         else:
             print(f'[{n}] {options_[n]}')
+    # get choice of user
     while True:
         button = input('>>>')
         if not button:
