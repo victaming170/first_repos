@@ -18,14 +18,8 @@ filenotes = {
 }
 
 while True:
-    choose0 = fct.option_button('What do you want to do?', 1, 
-        'Exit', 
-        'Update to central', 
-        'Download to local',
-        'Browse or delete existing file_couple', 
-        'New file_couple', 
-        'Change root directory'
-        )
+    choose0 = fct.option_button(0, 1, 'Exit', 'Update to central', 'Download to local', 'Browse existing file_couple',\
+        'New file_couple', 'Change root directory')
 
     if choose0 == 0:
         break
@@ -34,30 +28,30 @@ while True:
         try:
             with open('filenotes.json', 'r') as fj:
                 filenotes = json.load(fj)
-        except FileNotFoundError:
-            print('FATAL ERROR: JSON BROKEN, CREATE NEW ONE.')
-        finally:
-            local_root = filenotes["local_root"]
-            central_root = filenotes["central_root"]
-            local_list = filenotes["local_list"]
-            central_list = filenotes["central_list"]
+                # print(filenotes)
+                local_root = filenotes["local_root"]
+                central_root = filenotes["central_root"]
+                local_list = filenotes["local_list"]
+                central_list = filenotes["central_list"]
             # print(local_root, local_list)
             # print(central_root, central_list)
+        except FileNotFoundError:
+            print('FATAL ERROR: JSON BROKEN, CREATE NEW ONE.')
         notes_n = len(central_list)
-        stationary = True
+        variation = False
         # -------------------- update file_couples --------------------
         if choose0 == 1 or choose0 == 2:
             for n in range(notes_n):
                 local_path = local_root + local_list[n]
                 central_path = central_root + central_list[n]
-                if not fct.text_cmp(local_path, central_path):
+                if not fct.file_cmp_text(local_path, central_path):
                     if choose0 == 1:
-                        fct.text_copy(local_path, central_path)
+                        fct.copy_file_text(local_path, central_path)
                         print(f'{local_path} ==>> {central_path}')
                     else:
-                        fct.text_copy(central_path, local_path)
+                        fct.copy_file_text(central_path, local_path)
                         print(f'{central_path} ==>> {local_path}')
-                    stationary = False
+                    variation = True
                 else:
                     print(f'{local_path} == {central_path}')
         # --------------- show current file_couples ------------------
@@ -65,25 +59,47 @@ while True:
             print(f'Root dir: {local_root} <==> {central_root}')
             for n in range(notes_n):
                 print(f'{local_list[n]} <==> {central_list[n]}')
-            choose1 = fct.option_button('Then', 0, 'Return', 'Delete one')
-            if choose1 == 1:
-                del_index = input('Press the index of the file_couple you want delete.')
-                if del_index in [str(i) for i in range(notes_n)]:
-                    del_index = int(del_index)
-                    del local_list[del_index]
-                    del central_list[del_index]
-                    stationary = False
-                else:
-                    print(f"Index{del_index} doesn't exist.")
+        # -------------- change root directory -------------------
+        elif choose0 == 5:
+            # source root
+            change_sp_r = input(f'Local dir(enter to pass): {local_root} --> ')
+            if not change_sp_r:
+                change_sp = local_root
+            else:
+                change_sp = ((repr(change_sp_r))[1:-1]).replace('\\', '/')
+            print(change_sp)
+            change_sp_P = Path(change_sp)
+            if change_sp_P.is_dir():
+                local_root = change_sp
+                if change_sp[-1] != '/':
+                    change_sp = change_sp + '/'
+                print(local_root)
+            else:
+                print(f'Directory {change_sp} is not exist.')
+            # destination root
+            change_dp_r = input(f'Central dir(enter to pass): {central_root} --> ')
+            if not change_dp_r:
+                change_dp = central_root
+            else:
+                change_dp = ((repr(change_dp_r)).replace('\\', '/'))[1:-1]
+            change_dp_P = Path(change_dp)
+            if change_dp_P.is_dir():
+                if change_dp[-1] != '/':
+                    change_dp = change_dp + '/'
+                central_root = change_dp
+                print(central_root)
+            else:
+                print(f'Directory {change_dp} is not exist.')
+            variation = True
         # ---------------- create new file_couple --------------------
         elif choose0 == 4:
-            choose1 = fct.option_button('Create new file_couple:', 1, 'Cancel', 'User Define', 'Auto Update')
-            stationary = False
-            if choose1 == 2:
+            choose1 = fct.option_button(1, 2, 'Cancel', 'Auto Update', 'User Define')
+            variation = True
+            if choose1 == 1:
                 print('Under construction.')
-                stationary = True
-            elif choose1 == 1:
-                # get local
+                variation = False
+            elif choose1 == 2:
+                # get source
                 while True:
                     set_local = ((repr(input(f'Local: {local_root}'))).replace('\\', '/'))[1:-1]
                     set_local_path = local_root + set_local
@@ -91,51 +107,19 @@ while True:
                         break
                     else:
                         print(f'Can not find {set_local}')
-                # get central
+                # get destination
                 set_central = ((repr(input(f'Central: {central_root}'))).replace('\\', '/'))[1:-1]
                 set_central_path = central_root + set_central
                 if not Path(set_central_path).is_file():
                     with open(set_central_path, 'w') as fcreate:
-                        print(f'Can not find {set_central}, create empty file.')
+                        print(f'Can not find {set_central}, create empty destination.')
                 # append to list
                 local_list.append(set_local)
                 central_list.append(set_central)
             else:
-                stationary = True
-        # -------------- change root directory -------------------
-        elif choose0 == 5:
-            print('WARNNING! Change root directory may invalidate previous file_couples.')
-            # local root
-            nx_local_root = input(f'Local dir(enter to pass): {local_root} --> ')
-            if not nx_local_root:
-                nx_local_root = local_root
-            else:
-                nx_local_root = ((repr(nx_local_root))[1:-1]).replace('\\', '/')
-            nx_local_root_P = Path(nx_local_root)
-            if nx_local_root_P.is_dir():
-                if nx_local_root[-1] != '/':
-                    nx_local_root = nx_local_root + '/'
-                local_root = nx_local_root
-                # print('New local_root:', local_root)
-            else:
-                print(f'Directory {nx_local_root} is not exist.')
-            # central root
-            nx_central_root = input(f'Central dir(enter to pass): {central_root} --> ')
-            if not nx_central_root:
-                nx_central_root = central_root
-            else:
-                nx_central_root = ((repr(nx_central_root)).replace('\\', '/'))[1:-1]
-            nx_central_root_P = Path(nx_central_root)
-            if nx_central_root_P.is_dir():
-                if nx_central_root[-1] != '/':
-                    nx_central_root = nx_central_root + '/'
-                central_root = nx_central_root
-                # print('New central_root:', central_root)
-            else:
-                print(f'Directory {nx_central_root} is not exist.')
-            stationary = False
+                variation = False
     # ----------------- dump .json --------------------
-    if not stationary:
+    if variation:
         filenotes["local_root"] = local_root
         filenotes["central_root"] = central_root
         filenotes["local_list"] = local_list
@@ -144,5 +128,5 @@ while True:
             json.dump(filenotes, fj, indent=4, sort_keys=True)
     print(16*'-', '\n')
 
-print(8*'-', 'by Victaming')
+
 # end = input('\n==== END ====\nEnter anything to exit...')
